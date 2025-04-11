@@ -32,6 +32,11 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ], [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow BeeTrailFieldLogger to use your location."
+        }
       ]
     ],
     "experiments": {

@@ -7,7 +7,7 @@ import {
 } from "@/components/screens/CreateEditHive/HiveForm";
 import { useHiveLoggerStore } from "@/store/useHiveLoggerStore";
 import { router, useGlobalSearchParams } from "expo-router";
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -27,12 +27,6 @@ const EditHiveScreen = () => {
   const addHive = useHiveLoggerStore((state) => state.addHive);
 
   const originalHive = getHiveById(hiveIdParam as string);
-
-  useEffect(() => {
-    if (!originalHive) {
-      Toast.error("Hive Not Found");
-    }
-  }, [originalHive]);
 
   const handleSubmit = (formData: HiveFormData): void => {
     if (!originalHive) return;
