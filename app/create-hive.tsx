@@ -11,12 +11,11 @@ import React, { useRef } from "react";
 import { KeyboardAvoidingView, Platform, Text, View } from "react-native";
 import { Toast } from "toastify-react-native";
 
-const CreateHiveScreen: React.FC = () => {
+const CreateHiveScreen = () => {
   const addHive = useHiveLoggerStore((state) => state.addHive);
   const formRef = useRef<HiveFormRef>(null);
 
   const handleSubmit = (formData: HiveFormData): void => {
-    // Check if hive ID already exists
     const getAllHives = useHiveLoggerStore.getState().getAllHives;
     const existingHive = getAllHives().find(
       (h) => h.hive_id === formData.hive_id
@@ -29,10 +28,8 @@ const CreateHiveScreen: React.FC = () => {
       return;
     }
 
-    // Add the new hive
     addHive(formData);
 
-    // Navigate back to the list
     router.back();
   };
 
@@ -68,7 +65,6 @@ const CreateHiveScreen: React.FC = () => {
           onValidationError={handleValidationError}
         />
 
-        {/* Floating Save Button */}
         <View className="absolute bottom-6 right-6">
           <CustomButton
             variant="primary"

@@ -40,12 +40,12 @@ interface LocationModalProps {
   hasExistingLocation?: boolean;
 }
 
-const LocationFallbackModal: React.FC<LocationModalProps> = ({
+const LocationFallbackModal = ({
   isVisible,
   onLocationSelected,
   onClose,
   hasExistingLocation = false,
-}) => {
+}: LocationModalProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
   const [loading, setLoading] = useState(false);

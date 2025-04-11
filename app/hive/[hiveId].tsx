@@ -93,13 +93,12 @@ const HiveDetailsScreen = () => {
   return (
     <LinearBackground>
       <View className="flex-row justify-between items-center p-4 bg-white border-b border-gray-100/10">
-        <TouchableOpacity
-          className="flex-row items-center"
+        <CustomButton
+          variant="link"
+          iconName="arrow-left"
+          title="Back"
           onPress={() => router.back()}
-        >
-          <Feather name="arrow-left" size={24} color="#1f2937" />
-          <Text className="ml-2 text-gray-800">Back</Text>
-        </TouchableOpacity>
+        />
 
         <TouchableOpacity onPress={handleDelete}>
           <Feather name="trash-2" size={24} color="#ef4444" />
@@ -181,13 +180,6 @@ const HiveDetailsScreen = () => {
             iconName="edit-2"
             onPress={() => router.push(`/edit-hive/${hive.hive_id}`)}
             className="mb-3"
-          />
-
-          <CustomButton
-            variant="outline"
-            title="Log Inspection"
-            iconName="clipboard"
-            onPress={() => {}}
           />
         </View>
       </ScrollView>
