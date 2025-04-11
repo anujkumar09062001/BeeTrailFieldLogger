@@ -8,13 +8,8 @@ import {
 import { useHiveLoggerStore } from "@/store/useHiveLoggerStore";
 import { router } from "expo-router";
 import React, { useRef } from "react";
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Text,
-  View,
-} from "react-native";
+import { KeyboardAvoidingView, Platform, Text, View } from "react-native";
+import { Toast } from "toastify-react-native";
 
 const CreateHiveScreen: React.FC = () => {
   const addHive = useHiveLoggerStore((state) => state.addHive);
@@ -28,10 +23,8 @@ const CreateHiveScreen: React.FC = () => {
     );
 
     if (existingHive) {
-      Alert.alert(
-        "Duplicate Hive ID",
-        "A hive with this ID already exists. Please use a different ID.",
-        [{ text: "OK" }]
+      Toast.error(
+        "A hive with this ID already exists. Please use a different ID."
       );
       return;
     }
@@ -44,11 +37,7 @@ const CreateHiveScreen: React.FC = () => {
   };
 
   const handleValidationError = (): void => {
-    Alert.alert(
-      "Validation Error",
-      "Please check the form for errors and try again.",
-      [{ text: "OK" }]
-    );
+    Toast.error("Please check the form for errors and try again.");
   };
 
   return (

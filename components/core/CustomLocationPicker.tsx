@@ -1,9 +1,10 @@
+import { useLocationStore } from "@/store/useLocationStore";
 import { Feather } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
+import LocationFallbackModal from "../shared/LocationFallbackModal";
 import CustomButton from "./CustomBottom";
-
 export interface LocationData {
   latitude: number;
   longitude: number;
@@ -29,25 +30,69 @@ const CustomLocationPicker = ({
 }: CustomLocationPickerProps) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [showLocationModal, setShowLocationModal] = useState<boolean>(false);
+
+  const {
+    userLocation,
+    locationPermissionStatus,
+    isManuallyEntered,
+    setUserLocation,
+    setLocationPermissionStatus,
+    setIsManuallyEntered,
+  } = useLocationStore();
 
   useEffect(() => {
-    if (!value) {
-      requestLocation();
+    if (!value && userLocation) {
+      onChange({
+        latitude: userLocation.latitude,
+        longitude: userLocation.longitude,
+        address: userLocation.address,
+      });
+    } else if (!value && !userLocation) {
+      initializeLocation();
     }
   }, []);
 
-  const requestLocation = async (): Promise<void> => {
+  const handleCloseLocationModal = () => {
+    if (value) {
+      setShowLocationModal(false);
+    }
+  };
+
+  const initializeLocation = async (): Promise<void> => {
     setLoading(true);
     setLocationError(null);
 
     try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-
-      if (status !== "granted") {
-        setLocationError("Permission to access location was denied");
+      if (locationPermissionStatus === "granted") {
+        getUserLocation();
         return;
       }
 
+      if (locationPermissionStatus === "denied") {
+        setShowLocationModal(true);
+        setLoading(false);
+        return;
+      }
+
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      setLocationPermissionStatus(status === "granted" ? "granted" : "denied");
+
+      if (status === "granted") {
+        getUserLocation();
+      } else {
+        setShowLocationModal(true);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Error initializing location:", error);
+      setLocationError("Could not get your location");
+      setLoading(false);
+    }
+  };
+
+  const getUserLocation = async (): Promise<void> => {
+    try {
       const currentLocation = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Balanced,
       });
@@ -57,7 +102,6 @@ const CustomLocationPicker = ({
         longitude: currentLocation.coords.longitude,
       };
 
-      // Try to get address
       try {
         const reverseGeocode = await Location.reverseGeocodeAsync({
           latitude: locationData.latitude,
@@ -79,16 +123,49 @@ const CustomLocationPicker = ({
         }
       } catch (error) {
         console.log("Error getting address:", error);
-        // We still have coordinates, so we can continue
       }
+
+      // Store in Zustand
+      setUserLocation({
+        latitude: locationData.latitude,
+        longitude: locationData.longitude,
+        address: locationData.address,
+        timestamp: Date.now(),
+      });
+
+      setIsManuallyEntered(false);
 
       onChange(locationData);
     } catch (error) {
       setLocationError("Could not get your location");
+      setShowLocationModal(true);
       console.error(error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleManualLocationSelected = (location: {
+    latitude: number;
+    longitude: number;
+    address: string;
+  }) => {
+    setUserLocation({
+      latitude: location.latitude,
+      longitude: location.longitude,
+      address: location.address,
+      timestamp: Date.now(),
+    });
+
+    setIsManuallyEntered(true);
+
+    onChange({
+      latitude: location.latitude,
+      longitude: location.longitude,
+      address: location.address,
+    });
+
+    setShowLocationModal(false);
   };
 
   return (
@@ -105,7 +182,7 @@ const CustomLocationPicker = ({
           iconName="refresh-cw"
           title="Refresh"
           size="sm"
-          onPress={requestLocation}
+          onPress={initializeLocation}
           disabled={loading}
         />
       </View>
@@ -122,7 +199,7 @@ const CustomLocationPicker = ({
             variant="secondary"
             title="Try Again"
             size="sm"
-            onPress={requestLocation}
+            onPress={initializeLocation}
             className="mt-2 bg-gray-200"
             textClassName="text-gray-700"
           />
@@ -144,13 +221,20 @@ const CustomLocationPicker = ({
           variant="secondary"
           title="Get Current Location"
           iconName="map-pin"
-          onPress={requestLocation}
+          onPress={initializeLocation}
           className="bg-gray-200"
           textClassName="text-gray-700"
         />
       )}
 
       {error && <Text className="text-red-500 text-sm mt-2">{error}</Text>}
+
+      <LocationFallbackModal
+        isVisible={showLocationModal}
+        onLocationSelected={handleManualLocationSelected}
+        onClose={handleCloseLocationModal}
+        hasExistingLocation={!!value}
+      />
     </View>
   );
 };

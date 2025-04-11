@@ -34,7 +34,6 @@ const HiveUiCard = ({ hive }: { hive: HiveEntry }) => {
         {new Date(hive?.date_placed).toLocaleDateString()}
       </Text>
 
-      {/* Map preview */}
       <View className="h-28 rounded-lg overflow-hidden mt-2 mb-1">
         <MapView
           style={{ height: "100%", width: "100%" }}

@@ -6,7 +6,7 @@ import HiveUiCard from "@/components/shared/HiveUiCard";
 import { useHiveLoggerStore } from "@/store/useHiveLoggerStore";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   FlatList,
   ListRenderItemInfo,
@@ -14,57 +14,96 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import * as Location from "expo-location";
+
+interface UserLocation {
+  latitude: number;
+  longitude: number;
+}
 
 type FilterOptions = {
-  startDate: Date | null;
-  endDate: Date | null;
   locationRadius: number | null;
-  locationName: string;
 };
 
 const defaultFilters: FilterOptions = {
-  startDate: null,
-  endDate: null,
   locationRadius: null,
-  locationName: "",
+};
+
+const calculateDistance = (
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number => {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) *
+      Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = R * c; // Distance in km
+
+  return distance;
 };
 
 const HiveListScreen = () => {
-  const allHives = useHiveLoggerStore((state) => state.getAllHives());
+  const allHives = useHiveLoggerStore((state) =>
+    state.getAllHives()
+  ) as HiveEntry[];
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [showFilters, setShowFilters] = useState<boolean>(false);
   const [filters, setFilters] = useState<FilterOptions>(defaultFilters);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [showSearch, setShowSearch] = useState<boolean>(false);
+  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
 
-  const filteredHives = useMemo(() => {
-    return allHives.filter((hive) => {
-      if (filters.startDate && filters.endDate) {
-        const hivePlacementDate = new Date(hive.date_placed);
-        if (
-          hivePlacementDate < filters.startDate ||
-          hivePlacementDate > filters.endDate
-        ) {
+  // Get user's location when component mounts
+  useEffect(() => {
+    (async () => {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+          console.log("Permission to access location was denied");
+          return;
+        }
+
+        const location = await Location.getCurrentPositionAsync({});
+        setUserLocation({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        });
+      } catch (error) {
+        console.error("Error getting location:", error);
+      }
+    })();
+  }, []);
+
+  const filteredHives = useMemo((): HiveEntry[] => {
+    return allHives.filter((hive: HiveEntry) => {
+      // Filter by location radius
+      if (
+        filters.locationRadius &&
+        userLocation &&
+        hive.latitude &&
+        hive.longitude
+      ) {
+        const distance = calculateDistance(
+          userLocation.latitude,
+          userLocation.longitude,
+          hive.latitude,
+          hive.longitude
+        );
+
+        // Return false if the hive is outside the radius
+        if (distance > filters.locationRadius) {
           return false;
         }
-      }
-
-      // Filter by location name - modified as we now store coordinates directly
-      if (filters.locationName) {
-        // Since we no longer have address stored directly, we'd need to
-        // implement a reverse geocoding solution or store address separately
-        // For now, skip this filter
-        return true;
-      }
-
-      // Filter by location radius (simplified - would need actual coordinate calculations)
-      if (filters.locationRadius && hive.latitude && hive.longitude) {
-        // Implement proper distance calculation between current location and hive coordinates
-        // For now, this is just a placeholder
-        // In a real implementation, you would:
-        // 1. Get user's current location
-        // 2. Calculate distance between user location and hive coordinates
-        // 3. Return true if distance <= filters.locationRadius
       }
 
       // Filter by search query (if any)
@@ -78,7 +117,7 @@ const HiveListScreen = () => {
 
       return true;
     });
-  }, [allHives, filters, searchQuery]);
+  }, [allHives, filters, searchQuery, userLocation]);
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -89,31 +128,31 @@ const HiveListScreen = () => {
     router.push("/create-hive");
   };
 
-  const handleApplyFilters = (newFilters: FilterOptions) => {
+  const handleApplyFilters = (newFilters: FilterOptions): void => {
     setFilters(newFilters);
   };
 
-  const handleClearFilters = () => {
+  const handleClearFilters = (): void => {
     setFilters(defaultFilters);
   };
 
-  const renderEmptyList = () => (
+  const renderEmptyList = (): JSX.Element => (
     <View className="flex-1 justify-center items-center p-6">
       <Feather name="inbox" size={64} color="#9ca3af" />
       <Text className="text-lg text-gray-100 font-medium mt-4 text-center">
         No hives found
       </Text>
       <Text className="text-gray-100 text-center mt-2">
-        {filters.startDate || filters.locationName || filters.locationRadius
-          ? "Try adjusting your filters"
+        {filters.locationRadius
+          ? "Try adjusting your radius filter"
           : "Tap the + button to add your first hive"}
       </Text>
     </View>
   );
 
-  const renderHiveItem = ({ item }: ListRenderItemInfo<any>) => (
-    <HiveUiCard hive={item} />
-  );
+  const renderHiveItem = ({
+    item,
+  }: ListRenderItemInfo<HiveEntry>): JSX.Element => <HiveUiCard hive={item} />;
 
   return (
     <LinearBackground>
@@ -140,7 +179,7 @@ const HiveListScreen = () => {
       {showSearch && (
         <View className="px-4 py-2 bg-white">
           <CustomTextInput
-            placeholder="Search hives..."
+            placeholder="Search by hive id"
             value={searchQuery}
             onChangeText={setSearchQuery}
             autoFocus

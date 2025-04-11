@@ -14,7 +14,7 @@ import CustomLocationPicker, {
 interface HiveFormData {
   hive_id: string;
   num_colonies: number;
-  date_placed: string; // ISO date string
+  date_placed: string;
   latitude: number;
   longitude: number;
 }
@@ -31,7 +31,6 @@ interface HiveFormRef {
 
 const HiveForm = forwardRef<HiveFormRef, HiveFormProps>(
   ({ initialData, onSubmit, onValidationError }, ref) => {
-    // Form state
     const [hiveId, setHiveId] = useState<string>(initialData?.hive_id || "");
     const [hiveIdError, setHiveIdError] = useState<string | undefined>();
 
@@ -54,7 +53,6 @@ const HiveForm = forwardRef<HiveFormRef, HiveFormProps>(
     );
     const [locationError, setLocationError] = useState<string | undefined>();
 
-    // Update form when initialData changes
     useEffect(() => {
       if (initialData) {
         setHiveId(initialData.hive_id || "");
@@ -78,7 +76,6 @@ const HiveForm = forwardRef<HiveFormRef, HiveFormProps>(
     const validateInputs = (): boolean => {
       let isValid = true;
 
-      // Validate hive ID
       if (!hiveId.trim()) {
         setHiveIdError("Please enter a Hive ID");
         isValid = false;
@@ -86,7 +83,6 @@ const HiveForm = forwardRef<HiveFormRef, HiveFormProps>(
         setHiveIdError(undefined);
       }
 
-      // Validate colonies
       const colonies = parseInt(numberOfColonies);
       if (isNaN(colonies) || colonies < 1) {
         setColoniesError("Please enter a valid number of colonies");
@@ -95,7 +91,6 @@ const HiveForm = forwardRef<HiveFormRef, HiveFormProps>(
         setColoniesError(undefined);
       }
 
-      // Validate location
       if (!location) {
         setLocationError("Location is required");
         isValid = false;
@@ -107,13 +102,11 @@ const HiveForm = forwardRef<HiveFormRef, HiveFormProps>(
     };
 
     const handleSubmit = (): void => {
-      // Validate inputs
       if (!validateInputs()) {
         onValidationError?.();
         return;
       }
 
-      // Create hive data object
       const hiveData: HiveFormData = {
         hive_id: hiveId.trim(),
         num_colonies: parseInt(numberOfColonies),
@@ -122,11 +115,9 @@ const HiveForm = forwardRef<HiveFormRef, HiveFormProps>(
         longitude: location!.longitude,
       };
 
-      // Submit the data
       onSubmit(hiveData);
     };
 
-    // Expose the submit method via ref
     useImperativeHandle(ref, () => ({
       submit: handleSubmit,
     }));
@@ -157,7 +148,7 @@ const HiveForm = forwardRef<HiveFormRef, HiveFormProps>(
             value={dateOfPlacement}
             onChange={setDateOfPlacement}
             containerClassName="mt-2"
-            maxDate={new Date()} // Can't place in the future
+            maxDate={new Date()}
           />
         </View>
 

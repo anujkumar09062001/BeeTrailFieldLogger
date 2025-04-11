@@ -2,14 +2,6 @@ import { asyncStorage } from "@/lib/storage";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-interface HiveEntry {
-  hive_id: string;
-  date_placed: string;
-  num_colonies: number;
-  latitude: number;
-  longitude: number;
-}
-
 interface HiveLoggerState {
   hives: HiveEntry[];
 

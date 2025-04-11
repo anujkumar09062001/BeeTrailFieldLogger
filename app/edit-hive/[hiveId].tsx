@@ -15,6 +15,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { Toast } from "toastify-react-native";
 
 const EditHiveScreen = () => {
   const { hiveId: hiveIdParam } = useGlobalSearchParams();
@@ -29,11 +30,7 @@ const EditHiveScreen = () => {
 
   useEffect(() => {
     if (!originalHive) {
-      Alert.alert(
-        "Hive Not Found",
-        "The hive you're trying to edit does not exist.",
-        [{ text: "OK", onPress: () => router.push("/") }]
-      );
+      Toast.error("Hive Not Found");
     }
   }, [originalHive]);
 
@@ -48,10 +45,8 @@ const EditHiveScreen = () => {
       );
 
       if (existingHive) {
-        Alert.alert(
-          "Duplicate Hive ID",
-          "A hive with this ID already exists. Please use a different ID.",
-          [{ text: "OK" }]
+        Toast.error(
+          "A hive with this ID already exists. Please use a different ID."
         );
         return;
       }
@@ -82,11 +77,7 @@ const EditHiveScreen = () => {
   };
 
   const handleValidationError = (): void => {
-    Alert.alert(
-      "Validation Error",
-      "Please check the form for errors and try again.",
-      [{ text: "OK" }]
-    );
+    Toast.error("Please check the form for errors and try again.");
   };
 
   if (!originalHive) {

@@ -26,7 +26,7 @@ const LinearBackground = ({
       }}
     >
       <LinearGradient
-        colors={["#FFFFFF", "#FFFFFF"]} // Fixed the color values
+        colors={["#FFFFFF", "#FFFFFF"]}
         style={{
           flex: 1,
           paddingBottom: bottomInsets ? insets.bottom : 0,

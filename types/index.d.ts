@@ -93,3 +93,18 @@ interface HiveEntry {
   latitude: number;
   longitude: number;
 }
+
+interface Location {
+  latitude: number;
+  longitude: number;
+}
+
+interface Crop {
+  id: string;
+  name: string;
+  flowering_start: string;
+  flowering_end: string;
+  location: GeoLocation;
+  recommended_hive_density?: number;
+  distance?: number;
+}

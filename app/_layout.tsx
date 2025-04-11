@@ -11,8 +11,10 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import "react-native-reanimated";
+import ToastManager from "toastify-react-native";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
+import NetworkProvider from "@/providers/NetworkProvider";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -35,16 +37,19 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="create-hive" options={{ headerShown: false }} />
-        <Stack.Screen name="hive/[hiveId]" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="edit-hive/[hiveId]"
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen name="+not-found" />
-      </Stack>
+      <NetworkProvider>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="create-hive" options={{ headerShown: false }} />
+          <Stack.Screen name="hive/[hiveId]" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="edit-hive/[hiveId]"
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+      </NetworkProvider>
+      <ToastManager />
       <StatusBar style="auto" />
     </ThemeProvider>
   );
