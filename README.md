@@ -1,50 +1,73 @@
-# Welcome to your Expo app 👋
+# Beekeeper Mobile App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A React Native mobile application built for beekeepers to manage hives and discover nearby crop pollination opportunities.
 
-## Get started
+## Features
 
-1. Install dependencies
+- **Hive Management**: Add, edit, and track beehives with unique identifiers
+- **Colony Tracking**: Record the number of colonies in each hive
+- **Location Services**: Automatically capture hive placement coordinates or manually search locations
+- **Crop Opportunities**: Discover nearby crops that need pollination based on your location
+- **Flowering Timelines**: View current and upcoming flowering windows for various crops
+- **Offline Support**: Continue using the app without internet connection with local data storage
+- **Search & Filtering**: Find hives quickly with search by ID and location radius filtering
 
-   ```bash
-   npm install
-   ```
+## Tech Stack
 
-2. Start the app
+- **React Native** with **Expo** framework
+- **Expo Router** for file-based navigation
+- **NativeWind** (TailwindCSS for React Native) for styling
+- **React Native Async Storage** for local data persistence
+- **Zustand** for state management
 
-   ```bash
-    npx expo start
-   ```
+## Installation
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+1. Clone the repository:
 
 ```bash
-npm run reset-project
+git clone https://github.com/anujkumar09062001/BeeTrailFieldLogger.git
+cd BeeTrailFieldLogger
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Install dependencies:
 
-## Learn more
+```bash
+npm install
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+3. Run the Android app:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npm run android
+```
 
-## Join the community
+4. For iOS:
 
-Join our community of developers creating universal apps.
+```bash
+npm run ios
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## App Structure
+
+The app consists of several key screens:
+
+- **My Hives Screen**: View all your registered hives
+- **Add New Hive Screen**: Register new hives with identifier, colony count, and location
+- **Crop Opportunities Screen**: Discover nearby pollination opportunities with flowering details
+
+## Offline Support
+
+The app includes offline capability with data synchronization when connection is restored. A banner will appear when the app is working in offline mode with a retry option to check connectivity.
+
+## Location Access
+
+The app requires location access to provide accurate hive placement and nearby crop information. If location access is denied, a fallback UI allows manual location search.
+
+## Development
+
+This project uses:
+
+- Expo Router for file-based navigation
+- NativeWind for styling (Tailwind CSS for React Native)
+- React Native Async Storage for data persistence
+- Zustand for state management
